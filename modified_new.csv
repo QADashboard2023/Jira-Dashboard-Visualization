@@ -1,4 +1,4 @@
-Unnamed: 0,Issue key,Issue id,Status,Creator,Defect Type,Feature Type,Summary,Test Type,Modified_Summary
+Unnamed: 0,Issue key,Issue id,Status,Creator,Defect Type,Feature Type,Summary,Test Type,Modified Summary
 0,INSBFOS-1641,404745,New,C006808,Program Error,INSBFOS-861,[QUEST-7321][INSBFOS-1641]#Defect 3: Jenkin job failed ,TBD,QUEST-7321
 1,INSBFOS-1640,404607,Assigned,C003602,Environment Error,INSBFOS-1627,[QUEST-14635/INSBFOS-1640] #Defect 2: Integration to GIS failed,UAT,QUEST-14635
 2,INSBFOS-1639,404601,READY FOR TEST,C006808,UI / Cosmetic,INSBFOS-861,[QUEST-7321][INSBFOS-1639]#Defect 3: Two sub classes for Home SmartPLUS in POC setup screens,TBD,QUEST-7321
