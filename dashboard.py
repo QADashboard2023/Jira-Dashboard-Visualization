@@ -15,8 +15,8 @@ server = app.server
 # Define the layout of the app
 app.layout = html.Div([
     dcc.Graph(id='defect-distribution-graph'),
-    dcc.Graph(id='feature-distribution-graph'),
     dcc.Graph(id='modified-summary-distribution-graph'),
+    dcc.Graph(id='feature-distribution-graph'),
     dcc.Graph(id='test-type-distribution-graph'),
     html.Div(id='selected-category'),
 ])
@@ -63,9 +63,9 @@ def update_defect_graph(selectedData):
     except Exception as e:
         return {}, f"Error: {str(e)}"
 
-# Define callback to update the Feature Type graph
+# Define callback to update the Modified Summary graph
 @app.callback(
-    Output('feature-distribution-graph', 'figure'),
+    Output('modified-summary-distribution-graph', 'figure'),
     Input('defect-distribution-graph', 'selectedData')
 )
 def update_summary_graph(selectedData):
@@ -101,10 +101,10 @@ def update_summary_graph(selectedData):
     except Exception as e:
         return {}
 
-# Define callback to update the Modified Summary graph based on Feature Type
+# Define callback to update the Feature Type graph based on Modified Summary
 @app.callback(
-    Output('modified-summary-distribution-graph', 'figure'),
-    Input('feature-distribution-graph', 'selectedData'),
+    Output('feature-distribution-graph', 'figure'),
+    Input('modified-summary-distribution-graph', 'selectedData'),
     Input('defect-distribution-graph', 'selectedData')
 )
 def update_modified_summary_graph(selectedFeatureData, selectedDefectData):
