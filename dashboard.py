@@ -68,7 +68,7 @@ def update_defect_graph(selectedData):
     Output('modified-summary-distribution-graph', 'figure'),
     Input('defect-distribution-graph', 'selectedData')
 )
-def update_summary_graph(selectedData):
+def update_modified_summary_graph(selectedData):
     selected_category = ""
 
     try:
@@ -107,7 +107,7 @@ def update_summary_graph(selectedData):
     Input('modified-summary-distribution-graph', 'selectedData'),
     Input('defect-distribution-graph', 'selectedData')
 )
-def update_modified_summary_graph(selectedFeatureData, selectedDefectData):
+def feature_type_graph(selectedFeatureData, selectedDefectData):
     global selected_summary
     global selected_defect
 
