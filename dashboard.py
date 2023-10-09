@@ -11,23 +11,23 @@ df = pd.read_csv('modified_new.csv')
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
-
 # Define the layout of the app
 app.layout = html.Div([
-    dcc.Graph(id='defect-distribution-graph'),
-    dcc.Graph(id='feature-distribution-graph'),
-    dcc.Graph(id='modified-summary-distribution-graph'),
     dcc.Graph(id='test-type-distribution-graph'),
+    dcc.Graph(id='modified-summary-distribution-graph'),
+    dcc.Graph(id='feature-type-distribution-graph'),
+    dcc.Graph(id='defect-distribution-graph'),
+    dcc.Graph(id='labels-distribution-graph'),
     html.Div(id='selected-category'),
 ])
 
-# Define callback to update the Defect Type graph and display details
+# Define callback to update the test Type graph and display details
 @app.callback(
-    Output('defect-distribution-graph', 'figure'),
+    Output('test-type-distribution-graph', 'figure'),
     Output('selected-category', 'children'),
-    Input('defect-distribution-graph', 'selectedData')
+    Input('test-type-distribution-graph', 'selectedData')
 )
-def update_defect_graph(selectedData):
+def update_test_type_graph(selectedData):
     selected_category = ""
 
     try:
@@ -36,20 +36,20 @@ def update_defect_graph(selectedData):
             selected_category = selectedData['points'][0]['x']
 
             # Filter data for the selected category
-            filtered_data = df[df['Defect Type'] == selected_category]
+            filtered_data = df[df['Test Type'] == selected_category]
 
             # Calculate the frequency of the selected category
-            category_counts = filtered_data['Defect Type'].value_counts()
+            category_counts = filtered_data['Test Type'].value_counts()
             fig = px.bar(category_counts, x=list(category_counts.index), y=category_counts.values,
-                         title=f"Details for Defect Type: {selected_category}",
-                         labels={'x': 'Defect Type', 'y': 'Count'},
+                         title=f"Details for Test Type: {selected_category}",
+                         labels={'x': 'Test Type', 'y': 'Count'},
                          template='plotly_white')
         else:
-            # Calculate the frequency of each defect type
-            defect_counts = df['Defect Type'].value_counts()
-            fig = px.bar(defect_counts, x=list(defect_counts.index), y=defect_counts.values,
-                         title="Defect Type Distribution",
-                         labels={'x': 'Defect Type', 'y': 'Count'},
+            # Calculate the frequency of each test type
+            test_type_counts = df['Test Type'].value_counts()
+            fig = px.bar(test_type_counts, x=list(test_type_counts.index), y=test_type_counts.values,
+                         title="Test Type Distribution",
+                         labels={'x': 'Test Type', 'y': 'Count'},
                          template='plotly_white')
 
         fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
@@ -63,27 +63,27 @@ def update_defect_graph(selectedData):
     except Exception as e:
         return {}, f"Error: {str(e)}"
 
-# Define callback to update the Feature Type graph
+# Define callback to update the quest number graph based on test type
 @app.callback(
-    Output('feature-distribution-graph', 'figure'),
-    Input('defect-distribution-graph', 'selectedData')
+    Output('modified-summary-distribution-graph', 'figure'),
+    Input('test-type-distribution-graph', 'selectedData')
 )
-def update_summary_graph(selectedData):
+def update_modified_summary_graph(selectedData):
     selected_category = ""
 
     try:
         if selectedData is not None:
-            # Get the selected category (Defect Type)
+            # Get the selected category (test Type)
             selected_category = selectedData['points'][0]['x']
 
             # Filter data for the selected category
-            filtered_data = df[df['Defect Type'] == selected_category]
+            filtered_data = df[df['Test Type'] == selected_category]
 
             # Calculate the frequency of each feature type within the selected Modified Summary
             feature_counts = filtered_data['Modified Summary'].value_counts()
             fig = px.bar(feature_counts, x=list(feature_counts.index), y=feature_counts.values,
-                         title=f"Modified Summary Distribution for Defect Type: {selected_category}",
-                         labels={'x': 'Modified Summary', 'y': 'Count'},
+                         title=f"Quest Number Distribution for Test Type: {selected_category}",
+                         labels={'x': 'Quest Number', 'y': 'Count'},
                          template='plotly_white')
 
         else:
@@ -101,32 +101,32 @@ def update_summary_graph(selectedData):
     except Exception as e:
         return {}
 
-# Define callback to update the Modified Summary graph based on Feature Type
+# Callback to update the feature graph based on test type and quest number
 @app.callback(
-    Output('modified-summary-distribution-graph', 'figure'),
-    Input('feature-distribution-graph', 'selectedData'),
-    Input('defect-distribution-graph', 'selectedData')
+    Output('feature-type-distribution-graph', 'figure'),
+    Input('modified-summary-distribution-graph', 'selectedData'),
+    Input('test-type-distribution-graph', 'selectedData')
 )
-def update_modified_summary_graph(selectedFeatureData, selectedDefectData):
-    global selected_summary
-    global selected_defect
+def update_feature_graph(selectedFeatureData, selectedTestTypeData):
+    selected_summary = ""
+    selected_test = ""
 
     try:
         if selectedFeatureData is not None:
             # Get the selected feature (Modified Summary)
             selected_summary = selectedFeatureData['points'][0]['x']
 
-        if selectedDefectData is not None:
-            # Get the selected defect type
-            selected_defect = selectedDefectData['points'][0]['x']
+        if selectedTestTypeData is not None:
+            # Get the selected test type
+            selected_test = selectedTestTypeData['points'][0]['x']
 
-        # Filter data based on both selected defect and summary
-        filtered_data = df[(df['Modified Summary'] == selected_summary) & (df['Defect Type'] == selected_defect)]
+        # Filter data based on both selected test type and quest numb
+        filtered_data = df[(df['Test Type'] == selected_test) & (df['Modified Summary'] == selected_summary)]
 
-        # Calculate the frequency of each feature type within the selected Modified Summary and Defect Type
+        # Calculate the frequency of each feature type within the selected Quest Number and Test Type
         feature_counts = filtered_data['Feature Type'].value_counts()
         fig = px.bar(feature_counts, x=list(feature_counts.index), y=feature_counts.values,
-                     title=f"Feature Type Distribution for Modified Summary: {selected_summary} and Defect Type: {selected_defect}",
+                     title=f"Feature Type Distribution for Quest Number: {selected_summary} and Test Type: {selected_test}",
                      labels={'x': 'Feature Type', 'y': 'Count'},
                      template='plotly_white')
 
@@ -141,44 +141,114 @@ def update_modified_summary_graph(selectedFeatureData, selectedDefectData):
     except Exception as e:
         return {}
 
-    
-# Define callback to update the Test Type drill-down graph
+# Callback to update the Defect Type graph based on Test Type, Quest Number & Feature Type
 @app.callback(
-    Output('test-type-distribution-graph', 'figure'),
-    Input('defect-distribution-graph', 'selectedData')
+    Output('defect-distribution-graph', 'figure'),
+    Input('feature-type-distribution-graph', 'selectedData'),
+    Input('modified-summary-distribution-graph', 'selectedData'),
+    Input('test-type-distribution-graph', 'selectedData')
 )
-def update_test_type_graph(selectedData):
-    selected_defect_type = ""
+def update_defect_graph(selectedFeatureData, selectedModifiedSummaryData, selectedTestTypeData):
+    selected_summary = ""
+    selected_category = ""
+    selected_feature = ""
 
     try:
-        if selectedData is not None:
-            # Get the selected defect type
-            selected_defect_type = selectedData['points'][0]['x']
+        if selectedFeatureData is not None:
+            selected_feature = selectedFeatureData['points'][0]['x']
 
-            # Filter data for the selected defect type
-            filtered_data = df[df['Defect Type'] == selected_defect_type]
+            if selectedModifiedSummaryData is not None:
+                # Get the selected feature (Modified Summary)
+                selected_summary = selectedModifiedSummaryData['points'][0]['x']
 
-            # Calculate the frequency of each test type within the selected defect type
-            test_type_counts = filtered_data['Test Type'].value_counts()
-            fig = px.bar(test_type_counts, x=list(test_type_counts.index), y=test_type_counts.values,
-                         title=f"Test Type Distribution for Defect Type: {selected_defect_type}",
-                         labels={'x': 'Test Type', 'y': 'Count'},
-                         template='plotly_white')
+            if selectedTestTypeData is not None:
+                # Get the selected category (Test Type)
+                selected_category = selectedTestTypeData['points'][0]['x']
 
+            # Filter the data based on the selected data from the previous 3 graphs
+            filtered_data = df.copy()  # start with a copy of the data frame
+
+            if selected_summary:
+                filtered_data = filtered_data[filtered_data['Modified Summary'] == selected_summary]
+
+            if selected_category:
+                filtered_data = filtered_data[filtered_data['Test Type'] == selected_category]
+            
+            if selected_feature:
+                filtered_data = filtered_data[filtered_data['Feature Type'] == selected_feature]
+
+            # calculate the frequency of the selected defect type
+            defect_counts = filtered_data['Defect Type'].value_counts()
+
+            # Create the bar chart for the Defect Type distribution
+            fig = px.bar(defect_counts, x=list(defect_counts.index), y=defect_counts.values,
+                        title= f"Defect Type Distribution for Feature Type: {selected_feature} & Quest Number: {selected_summary} and Test Type: {selected_category}",
+                        labels={'x': 'Defect Type', 'y': 'Count'},
+                        template='plotly_white')
+
+            fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
+                            marker_line_width=1.5, opacity=0.6,
+                            texttemplate='%{y}', textposition='outside')
+
+            fig.update_layout(clickmode='event+select')
+
+            return fig
         else:
-            # If no Defect Type is selected, show an empty graph
-            fig = go.Figure()
-
-        fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
-                          marker_line_width=1.5, opacity=0.6,
-                          texttemplate='%{y}', textposition='outside')
-
-        fig.update_layout(clickmode='event+select')
-
-        return fig
+            # If no Feature Type is selected, show an empty graph
+            return go.Figure()
 
     except Exception as e:
         return {}
+
+# Callback to update the labels graph based on previous 4 drill downs
+@app.callback(
+    Output('labels-distribution-graph', 'figure'),
+    Input('defect-distribution-graph', 'selectedData'),
+    Input('feature-type-distribution-graph', 'selectedData'),
+    Input('modified-summary-distribution-graph', 'selectedData'),
+    Input('test-type-distribution-graph', 'selectedData')
+)
+def update_labels_graph(selectedDefectData, selectedFeatureData, selectedModifiedSummaryData, selectedTestTypeData):
+    try:
+        if selectedDefectData is not None:
+            selected_defect = selectedDefectData['points'][0]['x']
+            
+            filtered_data = df[df['Defect Type'] == selected_defect]
+            
+            if selectedFeatureData:
+                selected_feature = selectedFeatureData['points'][0]['x']
+                filtered_data = filtered_data[filtered_data['Feature Type'] == selected_feature]
+            
+            if selectedModifiedSummaryData:
+                selected_summary = selectedModifiedSummaryData['points'][0]['x']
+                filtered_data = filtered_data[filtered_data['Modified Summary'] == selected_summary]
+            
+            if selectedTestTypeData:
+                selected_category = selectedTestTypeData['points'][0]['x']
+                filtered_data = filtered_data[filtered_data['Test Type'] == selected_category]
+
+            label_counts = filtered_data['Labels'].value_counts()
+            
+            if not label_counts.empty:
+                fig = px.bar(label_counts, x=list(label_counts.index), y=label_counts.values,
+                            title= f"Label Distribution for Defect Type: {selected_defect} & Feature Type: {selected_feature} & Quest Number: {selected_summary} and Test Type: {selected_category}",
+                            labels={'x': 'Label', 'y': 'Count'},
+                            template='plotly_white')
+
+                fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
+                                marker_line_width=1.5, opacity=0.6,
+                                texttemplate='%{y}', textposition='outside')
+
+                fig.update_layout(clickmode='event+select')
+
+                return fig
+
+        # If no Defect Type is selected or no data for the selection, show an empty graph
+        return go.Figure()
+
+    except Exception as e:
+        return {}
+
 
 # Run the app
 if __name__ == '__main__':
